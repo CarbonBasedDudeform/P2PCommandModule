@@ -22,11 +22,14 @@ namespace P2PCommands
     /// Interface for Commands that can be sent to peers.
     /// Commands must be convertible to a format to send over the network and be retrieved over the network.
     /// </summary>
-    public abstract class Command
+    public class Command
     {
         //abstract public byte[] ConvertToSend();
         //abstract public void ConvertFromNetwork(byte[] data);
-        //abstract public string Payload { get; set; }
-        abstract public string Name { get; }
+        virtual public string Payload { get; set; }
+        virtual public string Name { get; set; }
+        //virtual public void PerformAction()
+        //{
+        //}
     }
 }

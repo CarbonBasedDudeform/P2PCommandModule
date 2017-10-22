@@ -5,30 +5,42 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using Newtonsoft.Json;
 
 namespace P2PCommands
 {
     public class DefaultAcknowledge : Command
     {
-        /*
-        public override byte[] ConvertToSend()
-        {
-            return Encoding.ASCII.GetBytes("ACK");
+        public override string Name {
+            get { return "ACK"; }
+            set { Name = value; }
         }
 
-        public override void ConvertFromNetwork(byte[] data)
+        public override string Payload
         {
-            
+            get { return "ACKNOWLEDGE"; }
+            set { Payload = value; }
+        }
+        //public Networking _network;
+        /*
+        public override void PerformAction()
+        {
+            if (_network != null)
+            {
+                _network.RegisterNode(new Peer());
+            }
+            else
+            {
+                throw new Exception("Network not set for Acknowledge command");
+            }
         }
         */
-
-        public override string Name { get { return "ACK"; } }
     }
 
     public class Networking
     {
         private UdpClient _client;
-        public delegate void NetworkResponse(string message);
+        public delegate void NetworkResponse(Command cmd);
         public NetworkResponse ProcessMessage;
 
         /// <summary>
@@ -44,7 +56,10 @@ namespace P2PCommands
                 if (isData)
                 {
                     var ASCIIMessage = Encoding.ASCII.GetString(data);
-                    ProcessMessage(ASCIIMessage);
+                    var command = JsonConvert.DeserializeObject<Command>(ASCIIMessage);
+                    var cmd = _knownCommands[command.Name];
+                    //cmd.PerformAction();
+                    ProcessMessage(cmd);
                 }
             }
         }
@@ -144,7 +159,8 @@ namespace P2PCommands
             using (var client = new UdpClient())
             {
                 client.Connect(new IPEndPoint(_broadcastIP, _port));
-                var msg = Encoding.ASCII.GetBytes(command.Name);//command.ConvertToSend();
+                var cmd = JsonConvert.SerializeObject(command);
+                var msg = Encoding.ASCII.GetBytes(cmd);
                 client.Send(msg, msg.Length);
             }
         }
