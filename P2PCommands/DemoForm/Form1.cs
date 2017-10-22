@@ -26,31 +26,23 @@ namespace DemoForm
                 get { return "Derpy Derp"; }
                 set { Payload = value; }
             }
+
+            public override void PerformAction()
+            {
+                MessageBox.Show(Payload);
+            }
         }
         private Networking _networking = new Networking();
         public Form1()
         {
             InitializeComponent();
             _networking.SetBroadcastIP("192.168.1.255");
-            _networking.ProcessMessage = new Networking.NetworkResponse(network_event);
             var ack = new DefaultAcknowledge();
             //ack._network = _networking;
             _networking.RegisterCommand(ack);
             _networking.RegisterCommand(new ShowMsgBox());
         }
 
-        public void network_event(Command cmd)
-        {
-            switch (cmd.Name)
-            {
-                //case "ACK":
-                //_networking.RegisterNode(new Networking)
-                case "MSGBOX":
-                    MessageBox.Show(cmd.Payload);
-                    break;
-            }
-            //MessageBox.Show(msg);
-        }
         private void button1_Click(object sender, EventArgs e)
         {
             var msgbox = new ShowMsgBox();

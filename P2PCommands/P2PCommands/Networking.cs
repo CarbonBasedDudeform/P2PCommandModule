@@ -21,8 +21,8 @@ namespace P2PCommands
             get { return "ACKNOWLEDGE"; }
             set { Payload = value; }
         }
-        //public Networking _network;
-        /*
+        public Networking _network;
+        
         public override void PerformAction()
         {
             if (_network != null)
@@ -34,14 +34,11 @@ namespace P2PCommands
                 throw new Exception("Network not set for Acknowledge command");
             }
         }
-        */
     }
 
     public class Networking
     {
         private UdpClient _client;
-        public delegate void NetworkResponse(Command cmd);
-        public NetworkResponse ProcessMessage;
 
         /// <summary>
         /// Listents for messages and passes them off to a ProcessMessage Function that the user provides.
@@ -58,8 +55,7 @@ namespace P2PCommands
                     var ASCIIMessage = Encoding.ASCII.GetString(data);
                     var command = JsonConvert.DeserializeObject<Command>(ASCIIMessage);
                     var cmd = _knownCommands[command.Name];
-                    //cmd.PerformAction();
-                    ProcessMessage(cmd);
+                    cmd.PerformAction();
                 }
             }
         }

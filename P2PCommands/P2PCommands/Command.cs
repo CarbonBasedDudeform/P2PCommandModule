@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.Serialization;
 
 namespace P2PCommands
 {
@@ -22,14 +23,17 @@ namespace P2PCommands
     /// Interface for Commands that can be sent to peers.
     /// Commands must be convertible to a format to send over the network and be retrieved over the network.
     /// </summary>
+    [DataContract]
     public class Command
     {
         //abstract public byte[] ConvertToSend();
         //abstract public void ConvertFromNetwork(byte[] data);
+        [DataMember]
         virtual public string Payload { get; set; }
+        [DataMember]
         virtual public string Name { get; set; }
-        //virtual public void PerformAction()
-        //{
-        //}
+        virtual public void PerformAction()
+        {
+        }
     }
 }
