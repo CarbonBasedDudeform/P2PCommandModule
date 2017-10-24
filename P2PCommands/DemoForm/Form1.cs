@@ -21,15 +21,9 @@ namespace DemoForm
                 set { Name = value; }
             }
 
-            public override string Payload
-            {
-                get { return "Derpy Derp"; }
-                set { Payload = value; }
-            }
-
             public override void PerformAction()
             {
-                MessageBox.Show(Payload);
+                MessageBox.Show("temp");
             }
         }
         private Networking _networking = new Networking();
@@ -38,13 +32,20 @@ namespace DemoForm
             InitializeComponent();
             _networking.SetBroadcastIP("192.168.1.255");
             var ack = new DefaultAcknowledge();
-            //ack._network = _networking;
+            ack._network = _networking;
             _networking.RegisterCommand(ack);
             _networking.RegisterCommand(new ShowMsgBox());
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
+            var ack = new DefaultAcknowledge();
+            ack._network = _networking;
+            var payload = new DefaultAcknowledgePayload();
+            payload.IPAddress = "127.0.0.1";
+            payload.Name = "Localhost";
+            ack.Payload = payload;
+            _networking.SendAll(ack);
             var msgbox = new ShowMsgBox();
             _networking.SendAll(msgbox);
         }

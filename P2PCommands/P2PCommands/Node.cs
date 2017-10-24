@@ -9,6 +9,11 @@ namespace P2PCommands
 {
     public class Peer
     {
+        public Peer(string IPaddress, string name)
+        {
+            IP = IPAddress.Parse(IPaddress);
+            Name = name;
+        }
         public IPAddress IP { get; set; }
         public string Name { get; set; }
     }

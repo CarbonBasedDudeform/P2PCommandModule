@@ -9,6 +9,12 @@ using Newtonsoft.Json;
 
 namespace P2PCommands
 {
+    public class DefaultAcknowledgePayload : Payload
+    {
+        public string IPAddress;
+        public string Name;
+    }
+
     public class DefaultAcknowledge : Command
     {
         public override string Name {
@@ -16,18 +22,15 @@ namespace P2PCommands
             set { Name = value; }
         }
 
-        public override string Payload
-        {
-            get { return "ACKNOWLEDGE"; }
-            set { Payload = value; }
-        }
         public Networking _network;
         
         public override void PerformAction()
         {
+
             if (_network != null)
             {
-                _network.RegisterNode(new Peer());
+                var myPayload = JsonConvert.DeserializeObject<DefaultAcknowledgePayload>(networkPayload);
+                _network.RegisterNode(new Peer(myPayload.IPAddress, myPayload.Name));
             }
             else
             {
@@ -55,6 +58,7 @@ namespace P2PCommands
                     var ASCIIMessage = Encoding.ASCII.GetString(data);
                     var command = JsonConvert.DeserializeObject<Command>(ASCIIMessage);
                     var cmd = _knownCommands[command.Name];
+                    cmd.networkPayload = command.networkPayload;
                     cmd.PerformAction();
                 }
             }
@@ -155,6 +159,7 @@ namespace P2PCommands
             using (var client = new UdpClient())
             {
                 client.Connect(new IPEndPoint(_broadcastIP, _port));
+                command.networkPayload = JsonConvert.SerializeObject(command.Payload);
                 var cmd = JsonConvert.SerializeObject(command);
                 var msg = Encoding.ASCII.GetBytes(cmd);
                 client.Send(msg, msg.Length);
