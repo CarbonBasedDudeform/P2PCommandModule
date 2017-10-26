@@ -9,12 +9,6 @@ using Newtonsoft.Json;
 
 namespace P2PCommands
 {
-    public class DefaultAcknowledgePayload : Payload
-    {
-        public string IPAddress;
-        public string Name;
-    }
-
     public class DefaultAcknowledge : Command
     {
         public override string Name {
@@ -23,14 +17,13 @@ namespace P2PCommands
         }
 
         public Networking _network;
-        
+
         public override void PerformAction()
         {
 
             if (_network != null)
             {
-                var myPayload = JsonConvert.DeserializeObject<DefaultAcknowledgePayload>(networkPayload);
-                _network.RegisterNode(new Peer(myPayload.IPAddress, myPayload.Name));
+                _network.RegisterNode(new Peer((string)Payload.IPAddress, (string)Payload.Name));
             }
             else
             {
@@ -59,6 +52,7 @@ namespace P2PCommands
                     var command = JsonConvert.DeserializeObject<Command>(ASCIIMessage);
                     var cmd = _knownCommands[command.Name];
                     cmd.networkPayload = command.networkPayload;
+                    cmd.Payload = JsonConvert.DeserializeObject(command.networkPayload);
                     cmd.PerformAction();
                 }
             }
@@ -112,12 +106,12 @@ namespace P2PCommands
         /// return type should be custom type instead of bool, 
         public bool RegisterNode(Peer peer)
         {
-            //simple validation - node isn't in network
+            //node already in network, update name reference. Assume it's new IP.
             foreach(var knownPeer in _knownPeers)
             {
-                if (peer.IP == knownPeer.IP)
+                if (peer.Name == knownPeer.Name)
                 {
-                    return false;
+                    knownPeer.Name = peer.Name;
                 }
             }
 

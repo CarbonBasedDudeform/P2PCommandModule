@@ -30,16 +30,11 @@ namespace P2PCommands
         //abstract public void ConvertFromNetwork(byte[] data);
         [DataMember]
         public string networkPayload { get; set; }
-        virtual public Payload Payload { get; set; }
+        virtual public dynamic Payload { get; set; }
         [DataMember]
         virtual public string Name { get; set; }
         virtual public void PerformAction()
         {
         }
-    }
-
-    public class Payload
-    {
-
     }
 }

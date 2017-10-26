@@ -23,7 +23,7 @@ namespace DemoForm
 
             public override void PerformAction()
             {
-                MessageBox.Show("temp");
+                MessageBox.Show((string)Payload.msg);
             }
         }
         private Networking _networking = new Networking();
@@ -39,14 +39,20 @@ namespace DemoForm
 
         private void button1_Click(object sender, EventArgs e)
         {
-            var ack = new DefaultAcknowledge();
-            ack._network = _networking;
-            var payload = new DefaultAcknowledgePayload();
-            payload.IPAddress = "127.0.0.1";
-            payload.Name = "Localhost";
-            ack.Payload = payload;
+            var ack = new DefaultAcknowledge()
+            {
+                Payload = new
+                {
+                    IPAddress = "127.0.0.1",
+                    Name = "Localhost"
+                }
+            };
+            //ack._network = _networking;
             _networking.SendAll(ack);
-            var msgbox = new ShowMsgBox();
+            var msgbox = new ShowMsgBox
+            {
+                Payload = new { msg = "What's going on?" }
+            };
             _networking.SendAll(msgbox);
         }
     }
