@@ -47,7 +47,6 @@ namespace DemoForm
                     Name = "Localhost"
                 }
             };
-            //ack._network = _networking;
             _networking.SendAll(ack);
             var msgbox = new ShowMsgBox
             {

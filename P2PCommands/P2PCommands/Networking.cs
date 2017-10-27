@@ -94,7 +94,7 @@ namespace P2PCommands
         #endregion
 
         #region Peer Network
-        private List<Peer> _knownPeers = new List<Peer>();
+        private Dictionary<string, Peer> _knownPeers = new Dictionary<string, Peer>();
         /// <summary>
         /// Registers a peer to this entities known network.
         /// This is to allow peers to be aware of each other
@@ -109,13 +109,14 @@ namespace P2PCommands
             //node already in network, update name reference. Assume it's new IP.
             foreach(var knownPeer in _knownPeers)
             {
-                if (peer.Name == knownPeer.Name)
+                if (peer.Name == knownPeer.Key)
                 {
-                    knownPeer.Name = peer.Name;
+                    _knownPeers.Remove(knownPeer.Key);
+                    _knownPeers.Add(peer.Name, peer);
                 }
             }
 
-            _knownPeers.Add(peer);
+            _knownPeers.Add(peer.Name, peer);
             return true;
         }
 
@@ -123,9 +124,9 @@ namespace P2PCommands
         {
             foreach (var knownPeer in _knownPeers)
             {
-                if (peer.IP == knownPeer.IP)
+                if (peer.Name == knownPeer.Key)
                 {
-                    _knownPeers.Remove(knownPeer);
+                    _knownPeers.Remove(knownPeer.Key);
                     return true;
                 }
             }
@@ -150,14 +151,30 @@ namespace P2PCommands
 
         public void SendAll(Command command)
         {
+            SendDirect(command, _broadcastIP);
+        }
+
+        public void SendDirect(Command command, IPAddress recepient)
+        {
             using (var client = new UdpClient())
             {
-                client.Connect(new IPEndPoint(_broadcastIP, _port));
+                client.Connect(new IPEndPoint(recepient, _port));
                 command.networkPayload = JsonConvert.SerializeObject(command.Payload);
                 var cmd = JsonConvert.SerializeObject(command);
                 var msg = Encoding.ASCII.GetBytes(cmd);
                 client.Send(msg, msg.Length);
             }
+        }
+
+        public void SendDirect(Command command, string recepientName)
+        {
+            IPAddress recepient = _knownPeers[recepientName].IP;
+            SendDirect(command, recepient);
+        }
+
+        public void SendDirect(Command command, Peer recepient)
+        {
+            SendDirect(command, recepient.IP);
         }
     }
 }
