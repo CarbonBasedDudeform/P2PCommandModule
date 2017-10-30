@@ -14,6 +14,13 @@ namespace P2PCommands
             IP = IPAddress.Parse(IPaddress);
             Name = name;
         }
+
+        public Peer(IPAddress IPaddress, string name)
+        {
+            IP = IPaddress;
+            Name = name;
+        }
+
         public IPAddress IP { get; set; }
         public string Name { get; set; }
     }

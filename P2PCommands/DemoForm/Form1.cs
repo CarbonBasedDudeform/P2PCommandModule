@@ -43,8 +43,8 @@ namespace DemoForm
             {
                 Payload = new
                 {
-                    IPAddress = "127.0.0.1",
-                    Name = "Localhost"
+                    IP = _networking.GetMyIP(),
+                    Name = _networking.GetMyName()
                 }
             };
             _networking.SendAll(ack);

@@ -23,7 +23,7 @@ namespace P2PCommands
 
             if (_network != null)
             {
-                _network.RegisterNode(new Peer((string)Payload.IPAddress, (string)Payload.Name));
+                _network.RegisterNode(new Peer((string)Payload.IP, (string)Payload.Name));
             }
             else
             {
@@ -42,7 +42,7 @@ namespace P2PCommands
         private void Listener()
         {
             var anyNetoworkedComputer = new IPEndPoint(IPAddress.Any, _port);
-            while(_client.Client.IsBound)
+            while (_client.Client.IsBound)
             {
                 var data = _client.Receive(ref anyNetoworkedComputer);
                 bool isData = data.Length > 0;
@@ -71,7 +71,7 @@ namespace P2PCommands
         private void Init()
         {
             _client = new UdpClient(_port);
-            Task.Run(() => Listener());    
+            Task.Run(() => Listener());
         }
 
         public Networking()
@@ -107,7 +107,7 @@ namespace P2PCommands
         public bool RegisterNode(Peer peer)
         {
             //node already in network, update name reference. Assume it's new IP.
-            foreach(var knownPeer in _knownPeers)
+            foreach (var knownPeer in _knownPeers)
             {
                 if (peer.Name == knownPeer.Key)
                 {
@@ -175,6 +175,30 @@ namespace P2PCommands
         public void SendDirect(Command command, Peer recepient)
         {
             SendDirect(command, recepient.IP);
+        }
+
+        private Peer _me = null;
+        public string GetMyIP()
+        {
+            var hostname = Dns.GetHostName();
+            var address = Dns.GetHostByName(hostname).AddressList[0].MapToIPv4().ToString();
+            return address;
+        }
+
+        public string GetMyName()
+        {
+            return Environment.MachineName;
+        }
+
+        public Peer WhoAmI()
+        {
+            if (_me != null)
+            {
+                return _me;
+            }
+
+            _me = new Peer(GetMyIP(), GetMyName());
+            return _me;
         }
     }
 }
